@@ -2,6 +2,7 @@
 
 import gulp from 'gulp';
 import babel from 'gulp-babel';
+import changed from 'gulp-changed';
 import nodemon from 'gulp-nodemon';
 //import eslint from 'gulp-eslint';
 import sourcemaps from 'gulp-sourcemaps';
@@ -34,6 +35,7 @@ const paths = {
 
 gulp.task('build-server', function () {
     gulp.src(paths.server_src, {base: "./src"})
+        .pipe(changed(paths.server_dest))
         .pipe(babel({presets: ["es2015", "react"]}))
         .on('error', console.error.bind(console))
         .pipe(gulp.dest(paths.server_dest));
@@ -41,11 +43,18 @@ gulp.task('build-server', function () {
 
 gulp.task('copy-server-views', function () {
     gulp.src(paths.server_views_src)
+        .pipe(changed(paths.server_views_dest))
         .pipe(gulp.dest(paths.server_views_dest));
 });
 
 gulp.task('start-server', function () {
     nodemon({
+        verbose: true,
+        watch: [
+            "build/model/",
+            "build/server/",
+            "build/shared/"
+        ],
         script: 'build/server/app.js',
         ext: 'js html ejs jsx',
         env: {'NODE_ENV': 'development'}
@@ -75,6 +84,7 @@ gulp.task('build-less', function () {
 
 gulp.task('copy-img', function () {
     gulp.src(paths.img_src)
+        .pipe(changed(paths.img_dest))
         .pipe(gulp.dest(paths.img_dest));
 });
 
