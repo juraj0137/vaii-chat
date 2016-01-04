@@ -1,0 +1,33 @@
+.sidebar {
+
+  .sidebar-static-item {
+    padding: 3px 30px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .sidebar-empty-item {
+    height: 30px;
+  }
+
+  ul li {
+    border: none;
+    a {
+      padding: 5px 10px;
+      cursor: pointer;
+
+      .remove{
+        float: right;
+        display: none;
+      }
+      &:hover{
+        .remove{
+          display: inline-block;
+        }
+      }
+    }
+    .form-group {
+      margin-bottom: 0px;
+    }
+  }
+}

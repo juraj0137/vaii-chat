@@ -1,0 +1,17 @@
+
+
+class WsManager{
+
+
+
+    listener(){
+
+
+
+    }
+
+    connect(){
+
+    }
+
+}
