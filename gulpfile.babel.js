@@ -4,6 +4,8 @@ import gulp from 'gulp';
 import babel from 'gulp-babel';
 import changed from 'gulp-changed';
 import nodemon from 'gulp-nodemon';
+import uglify from 'gulp-uglify';
+import minifyCss  from 'gulp-minify-css';
 //import eslint from 'gulp-eslint';
 import sourcemaps from 'gulp-sourcemaps';
 import source from 'vinyl-source-stream'; //to 'rename' your resulting file
@@ -43,7 +45,6 @@ gulp.task('build-server', function () {
 
 gulp.task('copy-server-views', function () {
     gulp.src(paths.server_views_src)
-        .pipe(changed(paths.server_views_dest))
         .pipe(gulp.dest(paths.server_views_dest));
 });
 
@@ -68,6 +69,8 @@ gulp.task('build-client', function () {
         .on('error', console.log)
         .pipe(source('bundle.js'))
         .pipe(buffer())
+        //.pipe(uglify())
+        //.on('error', console.log)
         .pipe(gulp.dest(paths.client_dest));
 });
 
@@ -77,6 +80,7 @@ gulp.task('build-less', function () {
         .pipe(less({
             paths: [ path.join(__dirname, 'less', 'includes') ]
         }))
+        //.pipe(minifyCss())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(paths.less_dest));
 });
@@ -84,7 +88,6 @@ gulp.task('build-less', function () {
 
 gulp.task('copy-img', function () {
     gulp.src(paths.img_src)
-        .pipe(changed(paths.img_dest))
         .pipe(gulp.dest(paths.img_dest));
 });
 
