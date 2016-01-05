@@ -15,6 +15,7 @@ import chatApp from '../shared/reducers/index';
 import {Provider} from 'react-redux';
 import apiRouter from './api/index';
 import mongoose from 'mongoose';
+import compression from 'compression';
 
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -33,13 +34,16 @@ const routes = new Routes(store).getRoutes();
 // connect to mongoDB
 mongoose.connect(config.mongoDb.url);
 
+//compresia
+app.use(compression());
+
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 // make available static files (css, js, img, ...)
-app.use('/assets', serveStatic(path.join(__dirname, './../../bower_components')));
-app.use('/build/client', serveStatic(path.join(__dirname, './../client')));
+app.use('/assets', serveStatic(path.join(__dirname, './../../bower_components'), {maxAge: '30d'}));
+app.use('/build/client', serveStatic(path.join(__dirname, './../client'), {maxAge: '30d'}));
 
 app.use(cookieParser()); // read cookies (needed for auth)
 //app.use(bodyParser()); // get information from html forms
