@@ -10,14 +10,14 @@ router.route('/').post((req, res) => {
 
     const {email, pass} = req.body;
 
-    User.findOne({
-        "local.email": email
-    }, (err, user)=> {
+    if (!email && !pass) {
+        res.json({success: false, message: 'Invalid arguments'});
+        return;
+    }
 
-        if (!email && !pass) {
-            res.json({success: false, message: 'Invalid arguments'});
-            return;
-        }
+    User.findOne({
+        "email": email
+    }, (err, user)=> {
 
 
         if (err) {
@@ -26,12 +26,12 @@ router.route('/').post((req, res) => {
         }
 
         if (!user) {
-            res.json({success: false, message: 'User not found'});
+            res.json({success: false, message: 'Uzivatel nenajdeny'});
             return;
         }
 
         if (!user.validPassword(pass)) {
-            res.json({success: false, message: 'Wrong pass'});
+            res.json({success: false, message: 'Nespravne heslo'});
             return;
         }
 
@@ -48,6 +48,82 @@ router.route('/').post((req, res) => {
 
     });
 
+});
+
+router.route('/verifyEmail').post((req, res) => {
+    const {email} = req.body;
+
+    User.findOne({
+        "email": email
+    }, (err, user)=> {
+
+        let returnMessage = {
+            success: false,
+            message: 'Email sa pouziva'
+        };
+
+        if (!user) {
+            returnMessage = {
+                success: true,
+                message: 'Email je volny'
+            };
+        }
+
+        res.json(returnMessage);
+
+    });
+});
+
+router.route('/verifyNick').post((req, res) => {
+    const {nick} = req.body;
+
+    User.findOne({
+        "displayName": nick
+    }, (err, user)=> {
+
+        let returnMessage = {
+            success: false,
+            message: 'Nick sa pouziva'
+        };
+
+        if (!user) {
+            returnMessage = {
+                success: true,
+                message: 'Nick je volny'
+            };
+        }
+
+        res.json(returnMessage);
+
+    });
+});
+
+
+router.route('/register').post((req, res) => {
+
+    let user = new User();
+    let {email, displayName, pass} = req.body;
+
+    if (email)
+        user.email = email;
+    if (displayName)
+        user.displayName = displayName;
+    if (email)
+        user.pass = user.generateHash(pass);
+
+    user.save((err)=> {
+        if (err)
+            res.json({
+                success: false,
+                error: err
+            });
+
+        res.json({
+            success: true,
+            message: 'User created',
+            user: user
+        })
+    });
 });
 
 export default router;

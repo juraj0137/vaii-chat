@@ -4,33 +4,18 @@ import express from 'express';
 
 const router = express.Router();
 
-function setLocalData(user, local) {
-
-    if (local.email)
-        user.local.email = local.email;
-
-    if (local.pass)
-        user.local.pass = user.generateHash(local.pass);
-
-    if (local.status && (local.status == USER_ACTIVE || local.status == USER_NONACTIVE))
-        user.local.status = local.status;
-
-    if (local.displayName)
-        user.local.displayName = local.displayName;
-
-    return user;
-}
-
 router.route('/')
     .post((req, res) => {
 
         let user = new User();
-        let {local} = req.body;
+        let {email, displayName, pass} = req.body;
 
-        if (local) {
-            local.status = USER_ACTIVE;
-            user = setLocalData(user, local);
-        }
+        if (email)
+            user.email = email;
+        if (displayName)
+            user.displayName = displayName;
+        if (email)
+            user.pass = user.generateHash(pass);
 
         user.save((err)=> {
             if (err)
@@ -72,10 +57,14 @@ router.route('/:userId')
             if (err)
                 res.send(err);
 
-            const {local} = req.body;
+            let {email, displayName, pass} = req.body;
 
-            if (local)
-                user = setLocalData(user, local);
+            if (email)
+                user.email = email;
+            if (displayName)
+                user.displayName = displayName;
+            if (email)
+                user.pass = user.generateHash(pass);
 
             user.save((err) => {
                 if (err) {

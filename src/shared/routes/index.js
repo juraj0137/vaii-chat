@@ -4,6 +4,7 @@ import { Route, IndexRoute } from "react-router";
 import App from './../components/app';
 import Home from './../components/home/homepage';
 import Login from './../components/auth/login';
+import Register from './../components/auth/register';
 import NotFound from './../components/notFound/notFound';
 import ChannelConversation from './../components/conversation/channelConversation';
 import UserConversation from './../components/conversation/userConversation';
@@ -62,6 +63,7 @@ export default class Routes {
                     <Route path="/user/:name" component={UserConversation} onEnter={existUser}/>
                 </Route>
                 <Route component={Login} path="login" onEnter={isUnauthorized}/>
+                <Route component={Register} path="register" onEnter={isUnauthorized}/>
                 <Route component={NotFound} path="*"/>
             </Route>
         )

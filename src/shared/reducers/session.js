@@ -1,6 +1,6 @@
 'use strict';
 
-import { AUTH_CONNECTING, AUTH_CONNECTED, AUTH_ERROR, AUTH_DISCONECTED } from '../constants/ActionTypes';
+import { AUTH_CONNECTING, AUTH_CONNECTED, AUTH_ERROR, AUTH_DISCONECTED, AUTH_SET_ERR_MSG } from '../constants/ActionTypes';
 
 const initialState = {
     connected: false,
@@ -39,6 +39,14 @@ export default function session(state = initialState, action) {
                 token: null,
                 errorMessage: action.message,
                 user: null
+            };
+        case AUTH_SET_ERR_MSG:
+            return {
+                loading: state.loading,
+                connected: state.connected,
+                token: state.token,
+                errorMessage: action.message,
+                user: state.user
             };
 
         default:

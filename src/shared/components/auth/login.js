@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as AuthActions from './../../actions/auth';
@@ -61,6 +62,12 @@ class Login extends React.Component {
                     {self.props.session.errorMessage}
                 </div>
             );
+
+            if(self.props.session.errorMessage == 'Boli ste uspesne odhlaseny'){
+                setTimeout(()=>{
+                    this.props.actions.setErrorMessage(null);
+                }, 1500);
+            }
         }
 
         return (
@@ -109,7 +116,7 @@ class Login extends React.Component {
                         </div>
                         <div className="row">
                             <div className="col-sm-6 col-sm-offset-3 social-login">
-                                <h3>Ak nemate vytvoreny ucet, zaregistrujte sa</h3>
+                                <h3>Ak nemate vytvoreny ucet, <Link to="/register">zaregistrujte sa</Link></h3>
                             </div>
                         </div>
                     </div>

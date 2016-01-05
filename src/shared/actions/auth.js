@@ -1,5 +1,5 @@
 'use strict';
-import { AUTH_CONNECTING, AUTH_CONNECTED, AUTH_ERROR, AUTH_DISCONECTED } from '../constants/ActionTypes';
+import { AUTH_CONNECTING, AUTH_CONNECTED, AUTH_ERROR, AUTH_DISCONECTED, AUTH_SET_ERR_MSG } from '../constants/ActionTypes';
 
 
 export function connect(credentials, success) {
@@ -18,15 +18,15 @@ export function connect(credentials, success) {
 
             if (data.success == true) {
                 dispatch(connectSuccess(data));
-                success();
+
+                if(typeof success == "function")
+                    success();
             } else {
                 dispatch(connectError(data.message));
             }
 
         }).fail((jqXHR, textStatus) => {
-
             dispatch(connectError(textStatus));
-
         });
     }
 }
@@ -50,6 +50,13 @@ export function connectError(errorMessage) {
     return {
         type: AUTH_ERROR,
         message: errorMessage
+    };
+}
+
+export function setErrorMessage(message) {
+    return {
+        type: AUTH_SET_ERR_MSG,
+        message: message
     };
 }
 

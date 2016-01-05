@@ -13,7 +13,7 @@ class Menu extends React.Component {
     render() {
         return (
             <nav className="navbar navbar-default navbar-static-top" role="navigation">
-                <Topbar/>
+                <Topbar {...this.props}/>
                 <Sidebar/>
             </nav>
         );
