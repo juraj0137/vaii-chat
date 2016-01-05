@@ -95,13 +95,6 @@ class ChannelList extends React.Component {
     }
 
     /**
-     * fix - nemenilo activne linky v menu
-     */
-    handleLinkClick(e) {
-        this.forceUpdate();
-    }
-
-    /**
      * Function for handling search value in seach input
      * @param event
      */
@@ -209,8 +202,7 @@ class ChannelList extends React.Component {
             .map((channel, id) => {
                 return (
                     <li key={id}>
-                        <Link to={`/channel/${channel.name}`} activeClassName="active"
-                              onClick={this.handleLinkClick.bind(this)}>
+                        <Link to={`/channel/${channel.name}`} activeClassName="active" onClick={this.props.onLinkClick}>
                             <i className="fa fa-users fa-fw"/> {channel.name}
                             <i className="fa fa-remove fa-fw remove"
                                onClick={(()=>{this.removeChannelModalOpen(channel.name)}).bind(this)}/>
@@ -220,16 +212,20 @@ class ChannelList extends React.Component {
             })
             .slice(0, this.numberOfVisibleChannels);
 
-        const moreChannelsButton = this.props.channels.data.length > this.numberOfVisibleChannels ?
+        const channelCount = this.props.channels.data.length;
+        const moreChannelsButton = channelCount > this.numberOfVisibleChannels ?
             (
                 <li>
-                    <a onClick={this.moreChannelsModalOpen.bind(this)}>Vsetky kanale
-                        ({this.props.channels.data.length})</a>
+                    <a onClick={this.moreChannelsModalOpen.bind(this)}>Vsetky kanale ({channelCount})</a>
                 </li>
             ) : '';
 
+        const navStyle = {
+            paddingTop: '20px'
+        };
+
         return (
-            <ul className="nav">
+            <ul className="nav" style={navStyle}>
                 <li className="sidebar-static-item"><span>CHATOVE KANALE</span></li>
                 <li className="sidebar-static-item">
                     <Input ref="channelSearch"
