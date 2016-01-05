@@ -95,6 +95,13 @@ class ChannelList extends React.Component {
     }
 
     /**
+     * fix - nemenilo activne linky v menu
+     */
+    handleLinkClick(e) {
+        this.forceUpdate();
+    }
+
+    /**
      * Function for handling search value in seach input
      * @param event
      */
@@ -105,11 +112,13 @@ class ChannelList extends React.Component {
     removeChannelModalOpen(name) {
         this.setState({removeChannelModal: true, removeChannel: name});
     }
+
     removeChannelModalClose() {
         this.setState({removeChannelModal: false, removeChannel: ''});
     }
-    removeChannelModalSubmit(){
-        if(this.state.removeChannel.length > 0){
+
+    removeChannelModalSubmit() {
+        if (this.state.removeChannel.length > 0) {
             this.props.actions.removeChannel({name: this.state.removeChannel});
         }
         this.removeChannelModalClose();
@@ -198,12 +207,13 @@ class ChannelList extends React.Component {
 
             })
             .map((channel, id) => {
-                const link = '/channel/' + channel.name
                 return (
                     <li key={id}>
-                        <Link to={link} activeClassName="active">
+                        <Link to={`/channel/${channel.name}`} activeClassName="active"
+                              onClick={this.handleLinkClick.bind(this)}>
                             <i className="fa fa-users fa-fw"/> {channel.name}
-                            <i className="fa fa-remove fa-fw remove" onClick={(()=>{this.removeChannelModalOpen(channel.name)}).bind(this)}/>
+                            <i className="fa fa-remove fa-fw remove"
+                               onClick={(()=>{this.removeChannelModalOpen(channel.name)}).bind(this)}/>
                         </Link>
                     </li>
                 )

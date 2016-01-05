@@ -6,6 +6,7 @@ import Home from './../components/home/homepage';
 import Login from './../components/auth/login';
 import NotFound from './../components/notFound/notFound';
 import ChannelConversation from './../components/conversation/channelConversation';
+import UserConversation from './../components/conversation/userConversation';
 
 
 import VotingList from './../components/voting/votingList';
@@ -31,7 +32,7 @@ export default class Routes {
                 replaceState({nextPathname: nextState.location.pathname}, '/');
         }
 
-        function existChnnel(nextState, replaceState) {
+        function existChannel(nextState, replaceState) {
             // ak neexistuje chatovaci kanal
             if (store.getState().channels.data.filter((channel)=> {
                     return channel.name == nextState.params.name
@@ -40,12 +41,25 @@ export default class Routes {
             }
         }
 
+
+        function existUser(nextState, replaceState) {
+            // ak neexistuje pouzivate na chatovanie
+            const loginUser = store.getState().session.user.displayName;
+            if (store.getState().users.data.filter((user)=> {
+                    return user.name == nextState.params.name && user.name != loginUser;
+                }).length < 1) {
+                replaceState({nextPathname: nextState.location.pathname}, '/');
+            }
+        }
+
+
+
         return (
             <Route path="/">
                 <Route component={App} onEnter={requireAuth}>
                     <IndexRoute component={Home}/>
-                    <Route path="/channel/:name" component={ChannelConversation} onEnter={existChnnel}/>
-                    <Route path="/user/:name" component={StatisticsDashboard}/>
+                    <Route path="/channel/:name" component={ChannelConversation} onEnter={existChannel}/>
+                    <Route path="/user/:name" component={UserConversation} onEnter={existUser}/>
                 </Route>
                 <Route component={Login} path="login" onEnter={isUnauthorized}/>
                 <Route component={NotFound} path="*"/>

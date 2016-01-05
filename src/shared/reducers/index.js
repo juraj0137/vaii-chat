@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import session from './session.js';
 import channels from './channels';
 import messages from './messages';
+import users from './users';
 //import friendlist from './friendlist.js';
 
 function lastAction(state = null, action) {
@@ -14,6 +15,7 @@ const chatApp = combineReducers({
     session,
     channels,
     messages,
+    users,
     lastAction
 });
 

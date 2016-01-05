@@ -13,3 +13,10 @@ export const CHANNEL_LOAD_FAIL = 'CHANNEL_LOAD_FAIL';
 
 export const MESSAGE_ADD = 'MESSAGE_ADD';
 export const MESSAGE_RECEIVE = 'MESSAGE_RECEIVE';
+
+export const USER_ADD = 'USER_ADD';
+export const USER_RECEIVE = 'USER_RECEIVE';
+export const USER_REMOVE = 'USER_REMOVE';
+export const USER_LOAD = 'USER_LOAD';
+export const USER_LOAD_SUCCESS = 'USER_LOAD_SUCCESS';
+export const USER_LOAD_FAIL = 'USER_LOAD_FAIL';

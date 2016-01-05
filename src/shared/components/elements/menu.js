@@ -58,7 +58,7 @@ class NavHeader extends React.Component {
                     <span className="icon-bar"/>
                     <span className="icon-bar"/>
                 </button>
-                <a className="navbar-brand" href="index.html">VAII chat v0.0.1</a>
+                <Link to="/" className="navbar-brand">VAII chat v0.0.1</Link>
             </div>
         );
     }
@@ -71,17 +71,17 @@ class SideMenu extends React.Component {
         this._users = [
             {
                 text: "Juraj Kubala",
-                href: "/message/1325649321",
+                href: "/user/kvak",
                 icon: "user"
             },
             {
                 text: "Ferko Mrkva",
-                href: "/message/1325649321",
+                href: "/user/hovno",
                 icon: "user"
             },
             {
                 text: "Kacer Donald",
-                href: "/message/1325649321",
+                href: "/user/1325649321",
                 icon: "user"
             }
         ];

@@ -2,4 +2,5 @@
 .idea/
 node_modules/
 _src/
+bower_components/
 __*
