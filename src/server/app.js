@@ -48,7 +48,7 @@ app.use('/assets', serveStatic(path.join(__dirname, './../../bower_components'),
 app.use('/build/client', serveStatic(path.join(__dirname, './../client'), {maxAge: '30d'}));
 
 app.use(cookieParser()); // read cookies (needed for auth)
-//app.use(bodyParser()); // get information from html forms
+app.use(bodyParser()); // get information from html forms
 
 app.use(session({ secret: 'mojvelmisilnysessionsecret' })); // session secret
 app.use(passport.initialize());
@@ -60,7 +60,7 @@ app.use('/api', apiRouter);
 // setup routes
 // @todo dorobit server rendering
 app.get('/*', (req, res) => {
-    //match({routes, location: req.url}, (error, redirectLocation, renderProps) => {
+    match({routes, location: req.url}, (error, redirectLocation, renderProps) => {
     //    if (error) {
     //        res.status(500).send(error.message)
     //    } else if (redirectLocation) {
@@ -77,7 +77,7 @@ app.get('/*', (req, res) => {
         //} else {
         //    res.status(404).send('Not found')
         //}
-    //})
+    })
 });
 
 // start the web server

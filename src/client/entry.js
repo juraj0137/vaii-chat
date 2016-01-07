@@ -10,7 +10,11 @@ import chatApp from '../shared/reducers/index';
 import {connectToken} from '../shared/actions/auth';
 import {loadUsers} from '../shared/actions/users';
 import { ApiManager } from '../shared/services/ApiManager';
+import * as channelActions from '../shared/actions/channels';
+
 import socketio from 'socket.io-client';
+
+import { CHANNEL_ADD_START, CHANNEL_ADD_SUCCESS, CHANNEL_ADD_FAIL, CHANNEL_LOAD_FAIL, CHANNEL_LOAD_SUCCESS, CHANNEL_LOAD_START } from '../shared/constants/ActionTypes';
 
 class Client extends React.Component {
 
@@ -37,9 +41,7 @@ class Client extends React.Component {
 
         store.subscribe(() => {
             localStorage.setItem('app_state', JSON.stringify(store.getState()));
-            console.log('new state after state change:');
             console.log(store.getState());
-            console.log('last action:');
             console.log(store.getState().lastAction);
         });
 
@@ -49,12 +51,37 @@ class Client extends React.Component {
             store.dispatch(connectToken(session.token, ()=> {
 
                 io.on('connect', function () {
+
                     io.on('authenticated', function () {
 
-                            io.emit('chat message', {msg: 'hovnoo'});
-                        })
-                        .emit('authenticate', {token: session.token}); // send the jwt
-                })
+
+                        // odosielanie
+                        store.subscribe(() => {
+                            const action = store.getState().lastAction;
+                            switch (action.type) {
+                                case CHANNEL_LOAD_START:
+                                case CHANNEL_ADD_START:
+                                    io.emit(action.type, action);
+                            }
+                        });
+
+                        // initial load
+                        store.dispatch(channelActions.loadChannels());
+
+                        //prijimanie
+                        io.on(CHANNEL_ADD_SUCCESS, (data)=> {
+                            store.dispatch(channelActions.addChannelSuccess(data.data.channel));
+                        }).on(CHANNEL_ADD_FAIL, (data)=> {
+                            store.dispatch(channelActions.addChannelFail(data.data.error));
+                        }).on(CHANNEL_LOAD_SUCCESS, (data)=> {
+                            store.dispatch(channelActions.loadChannelsSuccess(data.data.channels));
+                        }).on(CHANNEL_LOAD_FAIL, (data)=> {
+                            store.dispatch(channelActions.loadChannelsFail(data.data.error));
+                        });
+
+
+                    }).emit('authenticate', {token: session.token}); // send the jwt
+                });
 
                 store.dispatch(loadUsers(session.token));
                 this._browserHistory.pushState(null, '/');

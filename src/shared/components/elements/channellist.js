@@ -52,8 +52,7 @@ class ChannelList extends React.Component {
         if (this.state.channelName.length > 0 && this.existChannel(this.state.channelName.trim()) == false) {
 
             const newChannel = {
-                name: this.state.channelName.trim(),
-                channelType: CHANNEL_PUBLIC
+                name: this.state.channelName.trim()
             };
 
             actions.addChannel(newChannel);
@@ -111,9 +110,10 @@ class ChannelList extends React.Component {
     }
 
     removeChannelModalSubmit() {
-        if (this.state.removeChannel.length > 0) {
-            this.props.actions.removeChannel({name: this.state.removeChannel});
-        }
+        //@todo doriesit
+        //if (this.state.removeChannel.length > 0) {
+        //    this.props.actions.removeChannel({name: this.state.removeChannel});
+        //}
         this.removeChannelModalClose();
     }
 
@@ -202,10 +202,10 @@ class ChannelList extends React.Component {
             .map((channel, id) => {
                 return (
                     <li key={id}>
-                        <Link to={`/channel/${channel.name}`} activeClassName="active" onClick={this.props.onLinkClick}>
+                        <Link to={`/channel/${channel.id}`} activeClassName="active" onClick={this.props.onLinkClick}>
                             <i className="fa fa-users fa-fw"/> {channel.name}
                             <i className="fa fa-remove fa-fw remove"
-                               onClick={(()=>{this.removeChannelModalOpen(channel.name)}).bind(this)}/>
+                               onClick={(()=>{this.removeChannelModalOpen(channel.id)}).bind(this)}/>
                         </Link>
                     </li>
                 )
