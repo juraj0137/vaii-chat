@@ -1,5 +1,5 @@
 'use strict';
-import { USER_ADD, USER_LOAD, USER_LOAD_FAIL, USER_LOAD_SUCCESS, USER_RECEIVE, USER_REMOVE } from '../constants/ActionTypes';
+import { USER_ADD, USERS_LOAD_START, USERS_LOAD_FAIL, USERS_LOAD_SUCCESS, USER_RECEIVE, USER_REMOVE } from '../constants/ActionTypes';
 
 const initialState = {
     loaded: false,
@@ -32,17 +32,17 @@ export default function users(state = initialState, action) {
                     return user.name != action.user.name;
                 })
             });
-        case USER_LOAD:
+        case USERS_LOAD_START:
             return Object.assign({}, state, {
                 loading: true
             });
-        case USER_LOAD_SUCCESS:
+        case USERS_LOAD_SUCCESS:
             return Object.assign({}, state, {
                 loading: false,
                 loaded: true,
                 data: action.users
             });
-        case USER_LOAD_FAIL:
+        case USERS_LOAD_FAIL:
             return Object.assign({}, state, {
                 loading: false,
                 loaded: false,

@@ -7,6 +7,7 @@ const router = express.Router();
 router.route('/')
     .post((req, res) => {
 
+
         let user = new User();
         let {email, displayName, pass} = req.body;
 
@@ -30,9 +31,15 @@ router.route('/')
     .get((req, res)=> {
         User.find((err, users) => {
             if (err)
-                res.send(err);
+                res.json({
+                    success: false,
+                    error: err
+                });
 
-            res.json(users);
+            res.json({
+                success: true,
+                users: users
+            });
         })
     });
 

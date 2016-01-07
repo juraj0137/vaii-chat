@@ -19,16 +19,24 @@ function mapDispatchToProps(dispatch) {
 
 class Login extends React.Component {
 
-    constructor(props) {
+    constructor(props, context) {
         super(props);
+        
+        console.log(context);
+
+        if(this.props.session.errorMessage == 'Boli ste uspesne odhlaseny'){
+            setTimeout(()=>{
+                this.props.actions.setErrorMessage(null);
+            }, 1500);
+        }
     }
 
     redirectAfterLogin() {
         const {history, location} = this.props;
         if (location.state && location.state.nextPathname)
-            history.replaceState(null, location.state.nextPathname);
+            history.pushState(null,location.state.nextPathname);
         else
-            history.replaceState(null, '/');
+            history.pushState(null,'/');
     }
 
     formSubmit(e) {
@@ -53,21 +61,13 @@ class Login extends React.Component {
 
     render() {
 
-        let self = this;
-
         let errorMsg = '';
-        if (self.props.session.errorMessage != null) {
+        if (this.props.session.errorMessage != null) {
             errorMsg = (
                 <div className="error-message">
-                    {self.props.session.errorMessage}
+                    {this.props.session.errorMessage}
                 </div>
             );
-
-            if(self.props.session.errorMessage == 'Boli ste uspesne odhlaseny'){
-                setTimeout(()=>{
-                    this.props.actions.setErrorMessage(null);
-                }, 1500);
-            }
         }
 
         return (
@@ -100,7 +100,7 @@ class Login extends React.Component {
                                         <div className="form-group">
                                             <label className="sr-only" htmlFor="form-username">Email</label>
                                             <input type="text" name="form-email" placeholder="Email..." ref="email"
-                                                   className="form-username form-control" id="form-email"/>
+                                                   className="form-username form-control" id="form-email" autoComplete="off"/>
                                         </div>
                                         <div className="form-group">
                                             <label className="sr-only" htmlFor="form-password">Heslo</label>
@@ -125,5 +125,9 @@ class Login extends React.Component {
         );
     }
 }
+
+Login.contextTypes = {
+    history: React.PropTypes.object.isRequired
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -6,7 +6,7 @@ import config from '../../config';
 
 const router = express.Router();
 
-router.route('/').post((req, res) => {
+router.route('/connectCredentials').post((req, res) => {
 
     const {email, pass} = req.body;
 
@@ -46,6 +46,32 @@ router.route('/').post((req, res) => {
             user: user
         });
 
+    });
+
+});
+
+router.route('/connectToken').post((req, res) => {
+
+    const {token} = req.body;
+
+    if (!token) {
+        res.json({success: false, message: 'Invalid arguments'});
+        return;
+    }
+
+    jwt.verify(token, config.authSecret, function(err, decoded) {
+        if (err) {
+            res.json({ success: false, message: 'Failed to authenticate token.' });
+        } else {
+            // if everything is good, save to request for use in other routes
+            const {user} = decoded;
+            res.json({
+                success: true,
+                message: 'Auth success',
+                token: token,
+                user
+            });
+        }
     });
 
 });

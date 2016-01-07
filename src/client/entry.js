@@ -7,7 +7,10 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import chatApp from '../shared/reducers/index';
-import {connectSuccess} from '../shared/actions/auth';
+import {connectToken} from '../shared/actions/auth';
+import {loadUsers} from '../shared/actions/users';
+import { ApiManager } from '../shared/services/ApiManager';
+import socketio from 'socket.io-client';
 
 class Client extends React.Component {
 
@@ -18,21 +21,18 @@ class Client extends React.Component {
             applyMiddleware(thunk)
         )(createStore);
 
+        this._browserHistory = createBrowserHistory();
+
         let store = {};
+        let io = socketio('http://128.199.46.74:3000');
 
         let stateFromLocalstorage = localStorage.getItem('app_state');
-        //console.log(stateFromLocalstorage);
+        //stateFromLocalstorage = null;
 
         if (stateFromLocalstorage != null) {
             store = finalCreateStore(chatApp, JSON.parse(stateFromLocalstorage));
-
-            //console.log('initializing store with windows state:');
-            console.log(store.getState());
         } else {
             store = finalCreateStore(chatApp);
-
-            //console.log('initializing store without windows state:');
-            //console.log(store.getState());
         }
 
         store.subscribe(() => {
@@ -43,33 +43,54 @@ class Client extends React.Component {
             console.log(store.getState().lastAction);
         });
 
-        if (localStorage.getItem('userData') != undefined) {
-            const localstorageData = JSON.parse(localStorage.getItem('userData'));
-            store.dispatch(connectSuccess(localstorageData));
+        // ak mame token pripojime sa
+        let session = store.getState().session;
+        if (typeof session != "undefined" && session.token != null) {
+            store.dispatch(connectToken(session.token, ()=> {
+
+                io.on('connect', function () {
+                    io.on('authenticated', function () {
+
+                            io.emit('chat message', {msg: 'hovnoo'});
+                        })
+                        .emit('authenticate', {token: session.token}); // send the jwt
+                })
+
+                store.dispatch(loadUsers(session.token));
+                this._browserHistory.pushState(null, '/');
+            }));
+
         }
 
-        //this._routes = new Routes(store, props).getRoutes();
         this._store = store;
+        this._routes = (new Routes(store)).getRoutes();
+
     }
 
-    componentDidMount(){
+    componentDidMount() {
 
     }
 
     render() {
 
-        let history = createBrowserHistory(),
-            store = this._store;
+        let history = this._browserHistory,
+            store = this._store,
+            routes = this._routes;
 
         return (
             <Provider store={store}>
                 <Router history={history}>
-                    {(new Routes(store)).getRoutes()}
+                    {routes}
                 </Router>
             </Provider>
         );
     }
 
 }
+
+window.onerror = (message, file, line) => {
+    const msg = (file + ':' + line + '\n\n' + message);
+    ApiManager.logError(msg);
+};
 
 ReactDOM.render(<Client/>, document.getElementById('react'));

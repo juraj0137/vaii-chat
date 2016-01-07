@@ -1,14 +1,14 @@
 'use strict';
-import { AUTH_CONNECTING, AUTH_CONNECTED, AUTH_ERROR, AUTH_DISCONECTED, AUTH_SET_ERR_MSG } from '../constants/ActionTypes';
+import { AUTH_CREDENTIALS_CONNECTING, AUTH_TOKEN_CONNECTING, AUTH_CONNECTED, AUTH_ERROR, AUTH_DISCONECTED, AUTH_SET_ERR_MSG } from '../constants/ActionTypes';
 
 
 export function connect(credentials, success) {
     return dispatch => {
-        dispatch({type: 'AUTH_CONNECTING'});
+        dispatch({type: AUTH_CREDENTIALS_CONNECTING});
 
         $.ajax({
             type: "POST",
-            url: "/api/v1/auth",
+            url: "/api/v1/auth/connectCredentials",
             dataType: "json",
             data: {
                 email: credentials.email,
@@ -31,14 +31,33 @@ export function connect(credentials, success) {
     }
 }
 
+export function  connectToken(token, success) {
+    return dispatch => {
+        dispatch({type: AUTH_TOKEN_CONNECTING});
+
+        $.ajax({
+            type: "POST",
+            url: "/api/v1/auth/connectToken",
+            dataType: "json",
+            data: {token: token}
+        }).done((data)=> {
+
+            if (data.success == true) {
+                dispatch(connectSuccess(data));
+                if(typeof success == "function"){
+                    success();
+                }
+            } else {
+                dispatch(connectError(data.message));
+            }
+
+        }).fail((jqXHR, textStatus) => {
+            dispatch(connectError(textStatus));
+        });
+    }
+}
+
 export function connectSuccess(data) {
-
-    const localstorageData = {
-        user: data.user,
-        token: data.token
-    };
-    localStorage.setItem('userData', JSON.stringify(localstorageData));
-
     return {
         type: AUTH_CONNECTED,
         user: data.user,
@@ -62,8 +81,10 @@ export function setErrorMessage(message) {
 
 export function disconnect(message, cb) {
     return dispatch => {
-        dispatch({type: AUTH_DISCONECTED, message: message});
-        localStorage.removeItem('userData');
+        dispatch({
+            type: AUTH_DISCONECTED,
+            message: message
+        });
         cb();
     }
 }

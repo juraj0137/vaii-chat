@@ -9,6 +9,7 @@ import channel_v1 from './v1/channel';
 import message_v1 from './v1/message';
 import conversation_v1 from './v1/conversation';
 import auth_v1 from './v1/auth';
+import error_logging_v1 from './v1/error';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.use('/v1/logging', error_logging_v1);
 app.use('/v1/auth', auth_v1);
 
 app.use('/v1', (req, res, next) => {

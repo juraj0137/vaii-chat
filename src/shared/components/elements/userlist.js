@@ -71,10 +71,13 @@ class UserList extends React.Component {
 
         const users = this.props.users.data
             .filter((user) => {
+                if (typeof user == "undefined" || user.name == this.props.session.user.displayName)
+                    return false;
+
                 if (this.state.searchUser.length < 1) {
-                    return user;
-                } else if (user.name.toLowerCase().indexOf(this.state.searchUser.toLowerCase()) != -1) {
-                    return user;
+                    return true;
+                } else if ( user.name.toLowerCase().indexOf(this.state.searchUser.toLowerCase()) != -1) {
+                    return true;
                 }
 
             })
@@ -125,7 +128,8 @@ class UserList extends React.Component {
  */
 function mapStateToProps(state) {
     return {
-        users: state.users
+        users: state.users,
+        session: state.session
     };
 }
 

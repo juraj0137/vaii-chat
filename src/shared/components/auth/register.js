@@ -4,7 +4,9 @@ import { Link } from 'react-router';
 import { Input } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import * as AuthActions from './../../actions/auth';
+import {ApiManager} from '../../services/ApiManager';
 
 function mapStateToProps(state) {
     return {
@@ -17,6 +19,10 @@ function mapDispatchToProps(dispatch) {
         actions: bindActionCreators(AuthActions, dispatch)
     };
 }
+
+const ERROR = 'error';
+const SUCCESS = 'success';
+const WARNING = 'warning';
 
 class Register extends React.Component {
 
@@ -41,14 +47,14 @@ class Register extends React.Component {
 
         // vymazanie chybovej spravy
         if (this.props.session.errorMessage != null) {
-            this.props.actions.setErrorMessage(null);
+            this.setErrorMessage(null);
         }
     }
 
     formSubmit(e) {
         e.preventDefault();
-        const {emailValidation, passValidation, passCheckValidation, nickValidation} = this.state;
-        const {emailValue, passValue, nickValue} = this.state;
+
+        const {emailValidation, passValidation, passCheckValidation, nickValidation, emailValue, passValue, nickValue} = this.state;
 
         // ak nepresli vsetky validacie
         let success = true;
@@ -58,38 +64,40 @@ class Register extends React.Component {
         success &= nickValidation == 'success';
 
         if (success == false) {
-            this.props.actions.setErrorMessage('Mate chybu/y v registracnom formulari');
+            this.setErrorMessage('Mate chybu/y v registracnom formulari');
             return;
         }
 
-        $.ajax({
-            type: "POST",
-            url: "/api/v1/auth/register",
-            dataType: "json",
-            data: {
-                email: emailValue,
-                pass: passValue,
-                displayName: nickValue
-            }
-        }).done((data)=> {
-            if(data.success == true){
-                this.props.actions.setErrorMessage('Zaregistrovali ste sa uspesne, za 3 sekundy budete automaticky prihlaseny');
-                setTimeout(()=>{
-                    this.props.actions.connect({
-                        email: emailValue,
-                        pass: passValue
-                    }, ()=>{
-                        this.redirectAfterLogin();
-                    })}, 3000)
-            }else{
-                this.props.actions.setErrorMessage('Nastala chyba pri vytvarani uzivatela');
-            }
-            console.log(data);
-        }).fail((jqXHR, textStatus) => {
-            console.log(jqXHR);
-            console.log(textStatus);
-        });
+        const user = {
+            email: emailValue,
+            pass: passValue,
+            displayName: nickValue
+        };
 
+        ApiManager.registerUser(user,
+            (data)=> {
+                if (data.success == true)
+                    this.loginAfterRegister(emailValue, passValue);
+                else
+                    this.setErrorMessage('Nastala chyba pri vytvarani uzivatela');
+            },
+            () => {
+                this.setErrorMessage('Nastala chyba pri vytvarani uzivatela');
+            }
+        );
+
+    }
+
+    loginAfterRegister(email, pass) {
+        this.setErrorMessage('Zaregistrovali ste sa uspesne, za 3 sekundy budete automaticky prihlaseny');
+        setTimeout(()=> {
+            this.props.actions.connect({
+                email: email,
+                pass: pass
+            }, ()=> {
+                this.redirectAfterLogin();
+            })
+        }, 3000)
     }
 
     redirectAfterLogin() {
@@ -108,54 +116,42 @@ class Register extends React.Component {
             msgUsage = 'Zadany email sa uz pouziva',
             msgVerify = 'Overujem zadany email',
             msgFree = 'Lucky day, tento email je volny :)',
-            msgError = 'Vyskytol sa problem pri overovani',
-            ERROR = 'error',
-            SUCCESS = 'success',
-            WARNING = 'warning';
+            msgError = 'Vyskytol sa problem pri overovani';
 
-        let msg = '';
-        let icon = '';
+        const setValidation = (type, msg)=> {
+            this.setState({
+                emailValidation: type,
+                emailHelp: msg
+            });
+        };
 
-        // kontrola emailu
-        if (inputVal.length > 0) {
+        this.setState({emailValue: inputVal});
 
-            if (this.isValidEmail(inputVal)) {
-                msg = msgVerify;
-                icon = WARNING;
-
-                clearTimeout(this.timer);
-                this.timer = setTimeout(()=>{
-                    $.ajax({
-                        type: "POST",
-                        url: "/api/v1/auth/verifyEmail",
-                        dataType: "json",
-                        data: {email: inputVal}
-                    }).done((data)=> {
-                        this.setState({
-                            emailValidation: (data.success == true) ? SUCCESS : ERROR,
-                            emailHelp: (data.success == true) ? msgFree : msgUsage
-                        });
-                    }).fail((jqXHR, textStatus) => {
-                        this.setState({
-                            emailValidation: ERROR,
-                            emailHelp: msgError
-                        });
-                    });
-                }, 800);
-            } else {
-                msg = msgWrong;
-                icon = ERROR;
-            }
-        } else {
-            msg = msgEmpty;
-            icon = ERROR;
+        // kontrola dlzky emailu
+        if (inputVal.length <= 0) {
+            setValidation(ERROR, msgEmpty);
+            return;
         }
 
-        this.setState({
-            emailValue: inputVal,
-            emailValidation: icon,
-            emailHelp: msg
-        });
+        // spravny tvar emailu
+        if (!this.isValidEmail(inputVal)) {
+            setValidation(ERROR, msgWrong);
+            return;
+        }
+
+        // overenie ci uz je pouzivany email
+        setValidation(WARNING, msgVerify);
+        clearTimeout(this.timer);
+        this.timer = setTimeout(()=> {
+            ApiManager.existsEmail(inputVal,
+                (data)=> {
+                    setValidation(data.success ? SUCCESS : ERROR, data.success ? msgFree : msgUsage);
+                },
+                () => {
+                    setValidation(ERROR, msgError);
+                }
+            );
+        }, 800);
 
     }
 
@@ -168,10 +164,7 @@ class Register extends React.Component {
 
         const inputVal = this.refs.pass.getValue(),
             MIN_LENGTH_OF_PASS = 6,
-            msgEmpty = 'Heslo nemoze ostat prazdne',
-            msgShort = 'Heslo musi mat aspon ' + MIN_LENGTH_OF_PASS + ' znakov',
-            ERROR = 'error',
-            SUCCESS = 'success';
+            msgShort = 'Heslo musi mat aspon ' + MIN_LENGTH_OF_PASS + ' znakov';
 
         this.setState({
             passValue: inputVal,
@@ -191,9 +184,7 @@ class Register extends React.Component {
     handlePassCheckChange() {
 
         const inputVal = this.refs.passCheck.getValue(),
-            msgNotEqual = 'Hesla sa nezhoduju',
-            ERROR = 'error',
-            SUCCESS = 'success';
+            msgNotEqual = 'Hesla sa nezhoduju';
 
         this.setState({
             passCheckValue: inputVal,
@@ -215,64 +206,52 @@ class Register extends React.Component {
             msgUsage = 'Nick sa uz pouziva',
             msgVerify = 'Overujem nick',
             msgEmpty = 'Nick nemoze ostat prazdny',
-            msgError = 'Vyskytol sa problem pri overovani',
-            ERROR = 'error',
-            SUCCESS = 'success',
-            WARNING = 'warning';
+            msgError = 'Vyskytol sa problem pri overovani';
 
-        if (inputVal.length > 0) {
-
+        const setValidation = (type, msg)=> {
             this.setState({
-                nickValidation: WARNING,
-                nickHelp: msgVerify
+                nickValidation: type,
+                nickHelp: msg
             });
-
-            clearTimeout(this.timer);
-            this.timer = setTimeout(()=>{
-                $.ajax({
-                    type: "POST",
-                    url: "/api/v1/auth/verifyNick",
-                    dataType: "json",
-                    data: {nick: inputVal}
-                }).done((data)=> {
-                    this.setState({
-                        nickValidation: (data.success == true) ? SUCCESS : ERROR,
-                        nickHelp: (data.success == true) ? '' : msgUsage
-                    });
-                }).fail((jqXHR, textStatus) => {
-                    this.setState({
-                        nickValidation: ERROR,
-                        nickHelp: msgError
-                    });
-                });
-            }, 800);
-        } else {
-            this.setState({
-                nickValidation: ERROR,
-                nickHelp: msgEmpty
-            });
-        }
+        };
 
         this.setState({nickValue: inputVal});
 
+        if (inputVal.length <= 0) {
+            setValidation(ERROR, msgEmpty);
+        }
+
+        setValidation(WARNING, msgVerify);
+        clearTimeout(this.timer);
+        this.timer = setTimeout(()=> {
+            ApiManager.existsNick(inputVal,
+                (data)=> {
+                    setValidation(data.success ? SUCCESS : ERROR, data.success ? '' : msgUsage);
+                },
+                () => {
+                    setValidation(ERROR, msgError);
+                });
+        }, 800);
+
+    }
+
+    setErrorMessage(msg) {
+        this.props.actions.setErrorMessage(msg);
     }
 
     render() {
 
-        let self = this;
-
         let errorMsg = '';
-        if (self.props.session.errorMessage != null) {
+        if (this.props.session.errorMessage != null) {
             errorMsg = (
                 <div className="error-message">
-                    {self.props.session.errorMessage}
+                    {this.props.session.errorMessage}
                 </div>
             );
         }
 
         return (
             <div className="top-content login">
-
                 <div className="inner-bg">
                     <div className="container">
                         <div className="row">
@@ -307,7 +286,6 @@ class Register extends React.Component {
                                                groupClassName="group-class"
                                                labelClassName="label-class"
                                                onChange={this.handleEmailChange.bind(this)}/>
-
                                         <div className="form-group">
                                             <Input type="password"
                                                    value={this.state.passValue}

@@ -64,14 +64,19 @@ gulp.task('start-server', function () {
 
 gulp.task('build-client', function () {
     browserify(paths.client_src + '/entry.js')
+        .on('error', console.log)
         .transform("babelify", {presets: ["es2015", "react"]})
+        .on('error', console.log)
         .bundle()
         .on('error', console.log)
         .pipe(source('bundle.js'))
+        .on('error', console.log)
         .pipe(buffer())
+        .on('error', console.log)
         //.pipe(uglify())
         //.on('error', console.log)
-        .pipe(gulp.dest(paths.client_dest));
+        .pipe(gulp.dest(paths.client_dest))
+        .on('error', console.log);
 });
 
 gulp.task('build-less', function () {

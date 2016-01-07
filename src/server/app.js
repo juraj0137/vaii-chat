@@ -9,13 +9,13 @@ import express from 'express';
 import serveStatic from 'serve-static';
 import path from 'path';
 import config from './config';
-import websocket from "nodejs-websocket";
 import { createStore } from 'redux';
 import chatApp from '../shared/reducers/index';
 import {Provider} from 'react-redux';
 import apiRouter from './api/index';
 import mongoose from 'mongoose';
 import compression from 'compression';
+import SocketIO from './websocket/index';
 
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -33,6 +33,8 @@ const routes = new Routes(store).getRoutes();
 
 // connect to mongoDB
 mongoose.connect(config.mongoDb.url);
+
+const socketIO = new SocketIO(app);
 
 //compresia
 app.use(compression());

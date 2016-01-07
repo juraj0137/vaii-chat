@@ -19,6 +19,7 @@ function mapDispatchToProps(dispatch) {
 
 class App extends React.Component {
 
+
     constructor(props) {
         super(props);
     }
@@ -32,6 +33,5 @@ class App extends React.Component {
         );
     }
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
