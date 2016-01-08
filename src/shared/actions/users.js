@@ -28,38 +28,26 @@ export function changeUser(user) {
     };
 }
 
-export function loadUsers(token) {
-    return dispatch => {
-        dispatch({type: USERS_LOAD_START});
-
-        $.ajax({
-            type: "GET",
-            url: "/api/v1/user",
-            dataType: "json",
-            headers: {'x-access-token': token}
-        }).done((data)=> {
-
-            if (data.success == true) {
-                const users = data.users.map((user) => {
-                    if (user.displayName)
-                        return {name: user.displayName};
-                });
-                dispatch({
-                    type: USERS_LOAD_SUCCESS,
-                    users: users
-                });
-            } else {
-                dispatch({
-                    type: USERS_LOAD_FAIL,
-                    error: data.error
-                });
-            }
-
-        }).fail((jqXHR, textStatus) => {
-            dispatch({
-                type: USERS_LOAD_FAIL,
-                error: textStatus
-            });
-        });
-    }
+export function loadUsers() {
+    return {
+        type: USERS_LOAD_START
+    };
+}
+export function loadUsersSuccess(data) {
+    const users = data.map((user)=>{
+        return {
+            id: user.id,
+            name: user.name
+        }
+    });
+    return {
+        type: USERS_LOAD_SUCCESS,
+        users
+    };
+}
+export function loadUsersFail(error) {
+    return {
+        type: USERS_LOAD_FAIL,
+        error
+    };
 }

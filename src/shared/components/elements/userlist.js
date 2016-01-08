@@ -71,7 +71,7 @@ class UserList extends React.Component {
 
         const users = this.props.users.data
             .filter((user) => {
-                if (typeof user == "undefined" || user.name == this.props.session.user.displayName)
+                if (typeof user == "undefined" || user.name == this.props.session.user.name)
                     return false;
 
                 if (this.state.searchUser.length < 1) {

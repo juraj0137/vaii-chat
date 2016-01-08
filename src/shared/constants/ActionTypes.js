@@ -17,9 +17,14 @@ export const CHANNEL_LOAD_FAIL = 'CHANNEL_LOAD_FAIL';
 export const MESSAGE_ADD = 'MESSAGE_ADD';
 export const MESSAGE_RECEIVE = 'MESSAGE_RECEIVE';
 
-export const USER_ADD = 'USER_ADD';
-export const USER_RECEIVE = 'USER_RECEIVE';
-export const USER_REMOVE = 'USER_REMOVE';
+export const USER_ADD_START = 'USER_ADD_START';
+export const USER_ADD_SUCCESS = 'USER_ADD_SUCCESS';
+export const USER_ADD_FAIL = 'USER_ADD_FAIL';
 export const USERS_LOAD_START = 'USERS_LOAD_START';
 export const USERS_LOAD_SUCCESS = 'USERS_LOAD_SUCCESS';
 export const USERS_LOAD_FAIL = 'USERS_LOAD_FAIL';
+
+//****************************** delete
+export const USER_ADD = 'USER_ADD';
+export const USER_RECEIVE = 'USER_RECEIVE';
+export const USER_REMOVE = 'USER_REMOVE';

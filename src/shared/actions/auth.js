@@ -1,5 +1,7 @@
 'use strict';
 import { AUTH_CREDENTIALS_CONNECTING, AUTH_TOKEN_CONNECTING, AUTH_CONNECTED, AUTH_ERROR, AUTH_DISCONECTED, AUTH_SET_ERR_MSG } from '../constants/ActionTypes';
+import * as channelActions from './channels';
+import * as userActions from './users';
 
 
 export function connect(credentials, success) {
@@ -18,6 +20,8 @@ export function connect(credentials, success) {
 
             if (data.success == true) {
                 dispatch(connectSuccess(data));
+                dispatch(channelActions.loadChannels());
+                //dispatch(userActions.loadUsers());
 
                 if(typeof success == "function")
                     success();

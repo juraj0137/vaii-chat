@@ -28,7 +28,7 @@ class MessageWriter extends Component {
                 messageType: this.props.conversationType,
                 referenceName: this.props.referenceName,
                 text: text,
-                user: this.props.session.user.displayName,
+                user: this.props.session.user.name,
                 time: Date.now()
             };
 

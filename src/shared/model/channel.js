@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-//import {CHANNEL_PRIVATE,CHANNEL_PUBLIC} from '../constants/ModelConstants';
 
 const ChannelSchema = mongoose.Schema({
     name: {

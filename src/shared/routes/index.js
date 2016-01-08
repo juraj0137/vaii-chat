@@ -45,7 +45,7 @@ export default class Routes {
 
         function existUser(nextState, replaceState) {
             // ak neexistuje pouzivate na chatovanie
-            const loginUser = store.getState().session.user.displayName;
+            const loginUser = store.getState().session.user.name;
             if (store.getState().users.data.filter((user)=> {
                     return user.name == nextState.params.name && user.name != loginUser;
                 }).length < 1) {

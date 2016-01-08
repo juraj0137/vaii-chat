@@ -71,7 +71,7 @@ class Register extends React.Component {
         const user = {
             email: emailValue,
             pass: passValue,
-            displayName: nickValue
+            name: nickValue
         };
 
         ApiManager.registerUser(user,

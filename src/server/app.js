@@ -15,24 +15,25 @@ import {Provider} from 'react-redux';
 import apiRouter from './api/index';
 import mongoose from 'mongoose';
 import compression from 'compression';
-import SocketIO from './websocket/index';
 
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
 import passport from 'passport';
+import SocketIO from './websocket/index';
+
+// connect to mongoDB
+mongoose.connect(config.mongoDb.url);
 
 var app = express();
 
 // create store
 let store = createStore(chatApp);
 
+
 // react routes
 import Routes from "../shared/routes/index.js";
 const routes = new Routes(store).getRoutes();
-
-// connect to mongoDB
-mongoose.connect(config.mongoDb.url);
 
 const socketIO = new SocketIO(app);
 

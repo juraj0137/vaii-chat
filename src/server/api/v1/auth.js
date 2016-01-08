@@ -1,5 +1,4 @@
 import User from '../../../shared/model/user';
-import {USER_ACTIVE,USER_NONACTIVE} from '../../../shared/model/user'
 import express from 'express';
 import jwt from 'jsonwebtoken'; // used to create, sign, and verify tokens
 import config from '../../config';
@@ -104,7 +103,7 @@ router.route('/verifyNick').post((req, res) => {
     const {nick} = req.body;
 
     User.findOne({
-        "displayName": nick
+        "name": nick
     }, (err, user)=> {
 
         let returnMessage = {
@@ -128,12 +127,12 @@ router.route('/verifyNick').post((req, res) => {
 router.route('/register').post((req, res) => {
 
     let user = new User();
-    let {email, displayName, pass} = req.body;
+    let {email, name, pass} = req.body;
 
     if (email)
         user.email = email;
-    if (displayName)
-        user.displayName = displayName;
+    if (name)
+        user.name = name;
     if (email)
         user.pass = user.generateHash(pass);
 

@@ -4,6 +4,7 @@ import wildcard from 'socketio-wildcard';
 import http from 'http';
 
 import config from '../config';
+import User from '../../shared/model/user';
 import Channel from '../../shared/model/channel';
 import * as ioConst from '../../shared/constants/SocketConstants';
 import * as actions from '../../shared/constants/ActionTypes';
@@ -29,7 +30,7 @@ export default class SocketIO {
             }))
             .on(ioConst.AUTHENTICATED, (socket) => {
                 console.log('connected & authenticated: ');
-                console.log(socket.decoded_token);
+                console.log(socket.decoded_token.user.email);
 
                 socket.on('*', (msg)=> {
                     this.processEvent(msg);
@@ -38,10 +39,10 @@ export default class SocketIO {
     }
 
     processEvent(msg) {
-        console.log(msg);
         const io = this._io;
         const data = msg.data[1];
         let ioMsg = {};
+        console.log(data.type);
 
         switch (data.type) {
             case actions.CHANNEL_ADD_START:
@@ -81,9 +82,50 @@ export default class SocketIO {
                                 }
                             })
                         };
-
                     io.emit(ioMsg.type, {data: ioMsg});
                 });
+                break;
+            case actions.USERS_LOAD_START:
+                User.find({}, (err, users)=> {
+                    if (err)
+                        ioMsg = {
+                            type: actions.USERS_LOAD_FAIL,
+                            error: 'Chyba pri nacitani kanalov z DB'
+                        };
+                    else
+                        ioMsg = {
+                            type: actions.USERS_LOAD_SUCCESS,
+                            users: users.map((user)=> {
+                                return {
+                                    name: user.name,
+                                    id: user._id
+                                }
+                            })
+                        };
+
+                    console.log(ioMsg);
+                    io.emit(ioMsg.type, {data: ioMsg});
+                });
+                //User.find({}, (err, users) => {
+                //    if (err)
+                //        ioMsg = {
+                //            type: actions.USERS_LOAD_FAIL,
+                //            error: 'Chyba pri nacitani kanalov z DB'
+                //        };
+                //    else
+                //        ioMsg = {
+                //            type: actions.USERS_LOAD_SUCCESS,
+                //            users: users.map((user)=> {
+                //                return {
+                //                    name: user.name,
+                //                    id: user._id
+                //                }
+                //            })
+                //        };
+                //
+                //    console.log(ioMsg);
+                //    io.emit(ioMsg.type, {data: ioMsg});
+                //});
                 break;
         }
     }

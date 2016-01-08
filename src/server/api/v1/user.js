@@ -1,5 +1,4 @@
 import User from '../../../shared/model/user';
-import {USER_ACTIVE,USER_NONACTIVE} from '../../../shared/model/user'
 import express from 'express';
 
 const router = express.Router();
@@ -9,12 +8,12 @@ router.route('/')
 
 
         let user = new User();
-        let {email, displayName, pass} = req.body;
+        let {email, name, pass} = req.body;
 
         if (email)
             user.email = email;
-        if (displayName)
-            user.displayName = displayName;
+        if (name)
+            user.name = name;
         if (email)
             user.pass = user.generateHash(pass);
 
@@ -64,12 +63,12 @@ router.route('/:userId')
             if (err)
                 res.send(err);
 
-            let {email, displayName, pass} = req.body;
+            let {email, name, pass} = req.body;
 
             if (email)
                 user.email = email;
-            if (displayName)
-                user.displayName = displayName;
+            if (name)
+                user.name = name;
             if (email)
                 user.pass = user.generateHash(pass);
 
