@@ -10,7 +10,6 @@ class MessageWriter extends Component {
 
     constructor(props, context) {
         super(props);
-        console.log(context);
         this.state = {
             text: '',
             typing: false
@@ -24,12 +23,10 @@ class MessageWriter extends Component {
         if (event.which === 13 && text.length > 0) {
             event.preventDefault();
             var newMessage = {
-                id: Date.now(),
-                messageType: this.props.conversationType,
-                referenceName: this.props.referenceName,
-                text: text,
-                user: this.props.session.user.name,
-                time: Date.now()
+                referenceType: this.props.conversationType,
+                referenceId: this.props.referenceId,
+                content: text,
+                authorId: this.props.session.user.id
             };
 
             this.props.actions.addMessage(newMessage);
@@ -68,7 +65,7 @@ class MessageWriter extends Component {
 
 MessageWriter.propTypes = {
     conversationType: PropTypes.string.isRequired,
-    referenceName: PropTypes.string.isRequired
+    referenceId: PropTypes.string.isRequired
 };
 
 

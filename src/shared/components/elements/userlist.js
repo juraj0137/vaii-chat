@@ -56,7 +56,7 @@ class UserList extends React.Component {
                             {this.props.users.data.map((user, id) => {
                                 return (
                                     <li key={id} onClick={this.moreUsersModalClose.bind(this)}>
-                                        <Link to={`/user/${user.name}`} activeClassName="active">{user.name}</Link>
+                                        <Link to={`/user/${user.id}`} activeClassName="active">{user.name}</Link>
                                     </li>
                                 )
                             })}
@@ -84,7 +84,7 @@ class UserList extends React.Component {
             .map((user, id) => {
                 return (
                     <li key={id}>
-                        <Link to={`/user/${user.name}`} activeClassName="active" onClick={this.props.onLinkClick}>
+                        <Link to={`/user/${user.id}`} activeClassName="active" onClick={this.props.onLinkClick}>
                             <i className="fa fa-user fa-fw"/> {user.name}
                         </Link>
                     </li>

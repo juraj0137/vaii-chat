@@ -3,6 +3,8 @@ import { USER_ADD, USERS_LOAD_START, USERS_LOAD_FAIL, USERS_LOAD_SUCCESS, USER_R
 
 const initialState = {
     loaded: false,
+    loading: false,
+    error: '',
     data: []
 };
 
@@ -32,6 +34,7 @@ export default function users(state = initialState, action) {
                     return user.name != action.user.name;
                 })
             });
+
         case USERS_LOAD_START:
             return Object.assign({}, state, {
                 loading: true
@@ -46,8 +49,7 @@ export default function users(state = initialState, action) {
             return Object.assign({}, state, {
                 loading: false,
                 loaded: false,
-                error: action.error,
-                data: [...state.data]
+                error: action.error
             });
         default:
             return state;

@@ -6,6 +6,7 @@ import http from 'http';
 import config from '../config';
 import User from '../../shared/model/user';
 import Channel from '../../shared/model/channel';
+import Message from '../../shared/model/message';
 import * as ioConst from '../../shared/constants/SocketConstants';
 import * as actions from '../../shared/constants/ActionTypes';
 
@@ -106,27 +107,54 @@ export default class SocketIO {
                     console.log(ioMsg);
                     io.emit(ioMsg.type, {data: ioMsg});
                 });
-                //User.find({}, (err, users) => {
-                //    if (err)
-                //        ioMsg = {
-                //            type: actions.USERS_LOAD_FAIL,
-                //            error: 'Chyba pri nacitani kanalov z DB'
-                //        };
-                //    else
-                //        ioMsg = {
-                //            type: actions.USERS_LOAD_SUCCESS,
-                //            users: users.map((user)=> {
-                //                return {
-                //                    name: user.name,
-                //                    id: user._id
-                //                }
-                //            })
-                //        };
-                //
-                //    console.log(ioMsg);
-                //    io.emit(ioMsg.type, {data: ioMsg});
-                //});
                 break;
+            case actions.MESSAGE_ADD_START:
+                console.log('a');
+                const message = new Message();
+                const {referenceType, referenceId, content, authorId } = data.message;
+                message.content = content;
+                message.referenceId = referenceId;
+                message.referenceType = referenceType;
+                message.author = authorId;
+                message.save((err, message) => {
+                    console.log('b');
+                    if (err) {
+                        console.log('c');
+
+                        ioMsg = {
+                            type: actions.MESSAGE_ADD_FAIL,
+                            error: 'Chyba pri zapisovani do DB'
+                        };
+                        io.emit(ioMsg.type, {data: ioMsg});
+                    }
+                    else {
+                        console.log('d');
+                        User.findOne({'_id': message.author}, (err, user)=> {
+                            console.log('e');
+                            if (err) {
+                                console.log('f');
+                                ioMsg = {
+                                    type: actions.MESSAGE_ADD_FAIL,
+                                    error: 'Chyba pri zapisovani do DB'
+                                };
+                            } else {
+                                console.log('g');
+                                ioMsg = {
+                                    type: actions.MESSAGE_ADD_SUCCESS,
+                                    message: {
+                                        id: message._id,
+                                        created: message.created,
+                                        content: message.content,
+                                        referenceId: message.referenceId,
+                                        referenceType: message.referenceType,
+                                        author: user
+                                    }
+                                };
+                                io.emit(ioMsg.type, {data: ioMsg});
+                            }
+                        });
+                    }
+                });
         }
     }
 

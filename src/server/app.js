@@ -25,6 +25,17 @@ import SocketIO from './websocket/index';
 // connect to mongoDB
 mongoose.connect(config.mongoDb.url);
 
+/*
+ * removing all items from DB
+ */
+//import Channel from './../shared/model/channel';
+//import Message from './../shared/model/message';
+//import User from './../shared/model/user';
+//
+//Channel.remove({}).exec();
+//Message.remove({}).exec();
+//User.remove({}).exec();
+
 var app = express();
 
 // create store

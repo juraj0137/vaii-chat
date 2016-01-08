@@ -157,7 +157,7 @@ class ChannelList extends React.Component {
                     <Modal.Body>
                         <ul style={{height: 'auto', margin: '0', overflowY: 'auto', padding: '0'}}>
                             {this.props.channels.data.map((channel, id) => {
-                                const link = '/channel/' + channel.name;
+                                const link = '/channel/' + channel.id;
                                 return (
                                     <li key={id} onClick={this.moreChannelsModalClose.bind(this)}>
                                         <Link to={link} activeClassName="active">{channel.name}</Link>

@@ -16,6 +16,7 @@ import socketio from 'socket.io-client';
 import * as actionTypes from '../shared/constants/ActionTypes';
 import * as channelActions from '../shared/actions/channels';
 import * as userActions from '../shared/actions/users';
+import * as messageActions from '../shared/actions/message';
 
 class Client extends React.Component {
 
@@ -63,6 +64,7 @@ class Client extends React.Component {
                                 case actionTypes.CHANNEL_LOAD_START:
                                 case actionTypes.CHANNEL_ADD_START:
                                 case actionTypes.USERS_LOAD_START:
+                                case actionTypes.MESSAGE_ADD_START:
                                     io.emit(action.type, action);
                             }
                         });
@@ -80,6 +82,10 @@ class Client extends React.Component {
                             store.dispatch(userActions.loadUsersSuccess(data.data.users));
                         }).on(actionTypes.USERS_LOAD_FAIL, (data)=> {
                             store.dispatch(userActions.loadUsersFail(data.data.error));
+                        }).on(actionTypes.MESSAGE_ADD_SUCCESS, (data)=> {
+                            store.dispatch(messageActions.addMessageSuccess(data.data.message));
+                        }).on(actionTypes.MESSAGE_ADD_FAIL, (data)=> {
+                            store.dispatch(messageActions.addMessageFail(data.data.error));
                         });
 
                         // initial load

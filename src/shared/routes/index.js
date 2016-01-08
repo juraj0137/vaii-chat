@@ -36,7 +36,7 @@ export default class Routes {
         function existChannel(nextState, replaceState) {
             // ak neexistuje chatovaci kanal
             if (store.getState().channels.data.filter((channel)=> {
-                    return channel.name == nextState.params.name
+                    return channel.id == nextState.params.id
                 }).length < 1) {
                 replaceState({nextPathname: nextState.location.pathname}, '/');
             }
@@ -45,22 +45,20 @@ export default class Routes {
 
         function existUser(nextState, replaceState) {
             // ak neexistuje pouzivate na chatovanie
-            const loginUser = store.getState().session.user.name;
+            const loginUserId = store.getState().session.user.id;
             if (store.getState().users.data.filter((user)=> {
-                    return user.name == nextState.params.name && user.name != loginUser;
+                    return user.id == nextState.params.id && user.id != loginUserId;
                 }).length < 1) {
                 replaceState({nextPathname: nextState.location.pathname}, '/');
             }
         }
 
-
-
         return (
             <Route path="/">
                 <Route component={App} onEnter={requireAuth}>
                     <IndexRoute component={Home}/>
-                    <Route path="/channel/:name" component={ChannelConversation} onEnter={existChannel}/>
-                    <Route path="/user/:name" component={UserConversation} onEnter={existUser}/>
+                    <Route path="/channel/:id" component={ChannelConversation} onEnter={existChannel}/>
+                    <Route path="/user/:id" component={UserConversation} onEnter={existUser}/>
                 </Route>
                 <Route component={Login} path="login" onEnter={isUnauthorized}/>
                 <Route component={Register} path="register" onEnter={isUnauthorized}/>

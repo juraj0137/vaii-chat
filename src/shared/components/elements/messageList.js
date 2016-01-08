@@ -32,19 +32,19 @@ class MessageList extends Component {
 
     render() {
 
-        const {conversationType, referenceName, messages} = this.props;
+        const {conversationType, referenceId, messages, session} = this.props;
 
         const messageItems = messages.data
             .filter((message) => {
-                return (message.messageType == conversationType && message.referenceName == referenceName);
+                return (message.referenceType == conversationType && (message.referenceId == referenceId || message.referenceId == session.user._id));
             }).map((message, id) => {
+                            //<b className="message-user">{message.author.name} </b>
                 return (
                     <li className="message-item" key={id}>
                         <span className="message-info">
-                            <b className="message-user">{message.user} </b>
-                            <i className="message-time">{message.time}</i>
+                            <i className="message-time">{message.created}</i>
                         </span>
-                        <div className="message-text">{message.text}</div>
+                        <div className="message-text">{message.content}</div>
                     </li>
                 );
             });
@@ -59,7 +59,7 @@ class MessageList extends Component {
 
 MessageList.propTypes = {
     conversationType: PropTypes.string.isRequired,
-    referenceName: PropTypes.string.isRequired
+    referenceId: PropTypes.string.isRequired
 };
 
 /**
@@ -67,7 +67,8 @@ MessageList.propTypes = {
  */
 function mapStateToProps(state) {
     return {
-        messages: state.messages
+        messages: state.messages,
+        session: state.session
     };
 }
 
