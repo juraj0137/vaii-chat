@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Input, Button } from 'react-bootstrap';
+import { Modal, Input, Button, Badge } from 'react-bootstrap';
 import * as ChannelActions from '../../actions/channels';
 import {CHANNEL_PUBLIC,CHANNEL_PRIVATE} from '../../constants/ModelConstants';
 
@@ -25,12 +25,12 @@ class ChannelList extends React.Component {
     /**
      * Add new channel modal functions
      */
-    addChannelModalOpen() {
+    addChannelModalOpen(event) {
         event.preventDefault();
         this.setState({addChannelModal: true});
     }
 
-    addChannelModalClose() {
+    addChannelModalClose(event) {
         event.preventDefault();
         this.setState({addChannelModal: false});
     }
@@ -52,25 +52,24 @@ class ChannelList extends React.Component {
         if (this.state.channelName.length > 0 && this.existChannel(this.state.channelName.trim()) == false) {
 
             const newChannel = {
-                name: this.state.channelName.trim(),
-                channelType: CHANNEL_PUBLIC
+                name: this.state.channelName.trim()
             };
 
             actions.addChannel(newChannel);
             this.setState({channelName: ''});
-            this.addChannelModalClose();
+            this.addChannelModalClose(event);
         }
     }
 
     /**
      * Show all channels modal functions
      */
-    moreChannelsModalOpen() {
+    moreChannelsModalOpen(event) {
         event.preventDefault();
         this.setState({moreChannelsModal: true});
     }
 
-    moreChannelsModalClose() {
+    moreChannelsModalClose(event) {
         event.preventDefault();
         this.setState({moreChannelsModal: false});
     }
@@ -105,13 +104,16 @@ class ChannelList extends React.Component {
     removeChannelModalOpen(name) {
         this.setState({removeChannelModal: true, removeChannel: name});
     }
+
     removeChannelModalClose() {
         this.setState({removeChannelModal: false, removeChannel: ''});
     }
-    removeChannelModalSubmit(){
-        if(this.state.removeChannel.length > 0){
-            this.props.actions.removeChannel({name: this.state.removeChannel});
-        }
+
+    removeChannelModalSubmit() {
+        //@todo doriesit
+        //if (this.state.removeChannel.length > 0) {
+        //    this.props.actions.removeChannel({name: this.state.removeChannel});
+        //}
         this.removeChannelModalClose();
     }
 
@@ -155,7 +157,7 @@ class ChannelList extends React.Component {
                     <Modal.Body>
                         <ul style={{height: 'auto', margin: '0', overflowY: 'auto', padding: '0'}}>
                             {this.props.channels.data.map((channel, id) => {
-                                const link = '/channel/' + channel.name;
+                                const link = '/channel/' + channel.id;
                                 return (
                                     <li key={id} onClick={this.moreChannelsModalClose.bind(this)}>
                                         <Link to={link} activeClassName="active">{channel.name}</Link>
@@ -198,48 +200,66 @@ class ChannelList extends React.Component {
 
             })
             .map((channel, id) => {
-                const link = '/channel/' + channel.name
+
+                const unreadedMsgCount = this.props.messages.data.filter((message)=>{
+
+                    const refferenceId = message.referenceId;
+                    const readed = typeof message.readed != "undefined" ? message.readed : true;
+
+                    return (refferenceId == channel.id && readed == false);
+
+                }).length;
+
+                const badge = unreadedMsgCount > 0 ? (
+                    <Badge pullRight={true}>{unreadedMsgCount}</Badge>
+                ) : '';
+
                 return (
                     <li key={id}>
-                        <Link to={link} activeClassName="active">
-                            <i className="fa fa-users fa-fw"/> {channel.name}
-                            <i className="fa fa-remove fa-fw remove" onClick={(()=>{this.removeChannelModalOpen(channel.name)}).bind(this)}/>
+                        <Link to={`/channel/${channel.id}`} activeClassName="active" onClick={this.props.onLinkClick}>
+                            <i className="fa fa-users fa-fw"/> {channel.name}{badge}
                         </Link>
                     </li>
                 )
             })
             .slice(0, this.numberOfVisibleChannels);
 
-        const moreChannelsButton = this.props.channels.data.length > this.numberOfVisibleChannels ?
+        const channelCount = this.props.channels.data.length;
+        const moreChannelsButton = channelCount > this.numberOfVisibleChannels ?
             (
                 <li>
-                    <a onClick={this.moreChannelsModalOpen.bind(this)}>Vsetky kanale
-                        ({this.props.channels.data.length})</a>
+                    <a onClick={this.moreChannelsModalOpen.bind(this)}>Vsetky kanale ({channelCount})</a>
                 </li>
             ) : '';
 
+        const navStyle = {
+            paddingTop: '20px'
+        };
+
         return (
-            <ul className="nav">
-                <li className="sidebar-static-item"><span>CHATOVE KANALE</span></li>
-                <li className="sidebar-static-item">
-                    <Input ref="channelSearch"
-                           type="text"
-                           name="channelSearch"
-                           placeholder="Hladaj kanal"
-                           value={this.state.searchChannel}
-                           onChange={this.seachChannelHandleChange.bind(this)}/>
-                </li>
-                <li>
-                    <a onClick={this.addChannelModalOpen.bind(this)}>
-                        <i className="fa fa-plus fa-fw"/>Novy kanal
-                    </a>
-                </li>
-                {channels}
-                {newChannelModal}
-                {moreChannelsButton}
-                {moreChannelsModal}
+            <div>
+                <ul className="nav" style={navStyle}>
+                    <li className="sidebar-static-item"><span>CHATOVE KANALE</span></li>
+                    <li className="sidebar-static-item">
+                        <Input ref="channelSearch"
+                               type="text"
+                               name="channelSearch"
+                               placeholder="Hladaj kanal"
+                               value={this.state.searchChannel}
+                               onChange={this.seachChannelHandleChange.bind(this)}/>
+                    </li>
+                    <li>
+                        <a onClick={this.addChannelModalOpen.bind(this)}>
+                            <i className="fa fa-plus fa-fw"/>Novy kanal
+                        </a>
+                    </li>
+                    {channels}
+                    {moreChannelsButton}
+                </ul>
                 {removeChannelModal}
-            </ul>
+                {moreChannelsModal}
+                {newChannelModal}
+            </div>
         );
     }
 }
@@ -249,7 +269,8 @@ class ChannelList extends React.Component {
  */
 function mapStateToProps(state) {
     return {
-        channels: state.channels
+        channels: state.channels,
+        messages: state.messages
     };
 }
 function mapDispatchToProps(dispatch) {

@@ -1,20 +1,15 @@
-import Channel from '../../../shared/model/channel';
-import {CHANNEL_PRIVATE,CHANNEL_PUBLIC} from '../../../shared/model/channel';
+//import Channel from '../../../shared/model/channel';
+//import {CHANNEL_PRIVATE,CHANNEL_PUBLIC} from '../../../shared/model/channel';
 
 import express from 'express';
 
 const router = express.Router();
-
+/*
 router.route('/')
     .post((req, res) => {
 
         let channel = new Channel();
         let {name, type} = req.body;
-
-        if (!type) {
-            type = CHANNEL_PRIVATE;
-        }
-        channel.channelType = type;
 
         if (name)
             channel.name = name;
@@ -62,9 +57,6 @@ router.route('/:channelId')
 
             const {name, type} = req.body;
 
-            if (type && (type == CHANNEL_PRIVATE || type == CHANNEL_PUBLIC))
-                channel.channelType = type;
-
             if (name)
                 channel.name = name;
 
@@ -95,5 +87,5 @@ router.route('/:channelId')
             res.json({message: 'Successfully deleted'});
         });
     });
-
+*/
 export default router;

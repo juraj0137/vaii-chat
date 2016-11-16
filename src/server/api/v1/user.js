@@ -1,36 +1,21 @@
 import User from '../../../shared/model/user';
-import {USER_ACTIVE,USER_NONACTIVE} from '../../../shared/model/user'
 import express from 'express';
 
 const router = express.Router();
 
-function setLocalData(user, local) {
-
-    if (local.email)
-        user.local.email = local.email;
-
-    if (local.pass)
-        user.local.pass = user.generateHash(local.pass);
-
-    if (local.status && (local.status == USER_ACTIVE || local.status == USER_NONACTIVE))
-        user.local.status = local.status;
-
-    if (local.displayName)
-        user.local.displayName = local.displayName;
-
-    return user;
-}
-
 router.route('/')
     .post((req, res) => {
 
-        let user = new User();
-        let {local} = req.body;
 
-        if (local) {
-            local.status = USER_ACTIVE;
-            user = setLocalData(user, local);
-        }
+        let user = new User();
+        let {email, name, pass} = req.body;
+
+        if (email)
+            user.email = email;
+        if (name)
+            user.name = name;
+        if (email)
+            user.pass = user.generateHash(pass);
 
         user.save((err)=> {
             if (err)
@@ -45,9 +30,15 @@ router.route('/')
     .get((req, res)=> {
         User.find((err, users) => {
             if (err)
-                res.send(err);
+                res.json({
+                    success: false,
+                    error: err
+                });
 
-            res.json(users);
+            res.json({
+                success: true,
+                users: users
+            });
         })
     });
 
@@ -72,10 +63,14 @@ router.route('/:userId')
             if (err)
                 res.send(err);
 
-            const {local} = req.body;
+            let {email, name, pass} = req.body;
 
-            if (local)
-                user = setLocalData(user, local);
+            if (email)
+                user.email = email;
+            if (name)
+                user.name = name;
+            if (email)
+                user.pass = user.generateHash(pass);
 
             user.save((err) => {
                 if (err) {

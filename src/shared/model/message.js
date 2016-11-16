@@ -6,6 +6,8 @@ const MessageSchema = mongoose.Schema({
         default: Date.now()
     },
     content: String,
+    referenceId: String,
+    referenceType: String,
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

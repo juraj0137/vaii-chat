@@ -9,40 +9,58 @@ import express from 'express';
 import serveStatic from 'serve-static';
 import path from 'path';
 import config from './config';
-import websocket from "nodejs-websocket";
 import { createStore } from 'redux';
 import chatApp from '../shared/reducers/index';
 import {Provider} from 'react-redux';
 import apiRouter from './api/index';
 import mongoose from 'mongoose';
+import compression from 'compression';
 
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
 import passport from 'passport';
+import SocketIO from './websocket/index';
+
+// connect to mongoDB
+mongoose.connect(config.mongoDb.url);
+
+/*
+ * removing all items from DB
+ */
+import Channel from './../shared/model/channel';
+import Message from './../shared/model/message';
+import User from './../shared/model/user';
+
+//Channel.remove({}).exec();
+//Message.remove({}).exec();
+//User.remove({}).exec();
 
 var app = express();
 
 // create store
 let store = createStore(chatApp);
 
+
 // react routes
 import Routes from "../shared/routes/index.js";
 const routes = new Routes(store).getRoutes();
 
-// connect to mongoDB
-mongoose.connect(config.mongoDb.url);
+const socketIO = new SocketIO(app);
+
+//compresia
+app.use(compression());
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 // make available static files (css, js, img, ...)
-app.use('/assets', serveStatic(path.join(__dirname, './../../bower_components')));
-app.use('/build/client', serveStatic(path.join(__dirname, './../client')));
+app.use('/assets', serveStatic(path.join(__dirname, './../../bower_components'), {maxAge: '30d'}));
+app.use('/build/client', serveStatic(path.join(__dirname, './../client'), {maxAge: '30d'}));
 
 app.use(cookieParser()); // read cookies (needed for auth)
-//app.use(bodyParser()); // get information from html forms
+app.use(bodyParser()); // get information from html forms
 
 app.use(session({ secret: 'mojvelmisilnysessionsecret' })); // session secret
 app.use(passport.initialize());
@@ -54,7 +72,7 @@ app.use('/api', apiRouter);
 // setup routes
 // @todo dorobit server rendering
 app.get('/*', (req, res) => {
-    //match({routes, location: req.url}, (error, redirectLocation, renderProps) => {
+    match({routes, location: req.url}, (error, redirectLocation, renderProps) => {
     //    if (error) {
     //        res.status(500).send(error.message)
     //    } else if (redirectLocation) {
@@ -71,7 +89,7 @@ app.get('/*', (req, res) => {
         //} else {
         //    res.status(404).send('Not found')
         //}
-    //})
+    })
 });
 
 // start the web server

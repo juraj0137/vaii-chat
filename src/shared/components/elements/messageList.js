@@ -1,5 +1,10 @@
 import React, { Component, PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+
+import * as modelConst from '../../constants/ModelConstants';
+import Utils from '../../utils';
+import {markReadedMessages} from '../../actions/message';
 
 class MessageList extends Component {
 
@@ -10,13 +15,15 @@ class MessageList extends Component {
     componentDidMount() {
         this.setMessageListHeight();
         this.scrollToBottom();
+        this.markReadedMessages();
     }
 
     componentDidUpdate() {
         this.scrollToBottom();
+        this.markReadedMessages();
     }
 
-    setMessageListHeight(){
+    setMessageListHeight() {
         const window = $('body').height();
         const navbar = $('.navbar').height();
         const writter = $('.row-writer').height();
@@ -25,29 +32,68 @@ class MessageList extends Component {
         $('.messages-wrapper').css({height: height + 'px'});
     }
 
-    scrollToBottom(){
+    scrollToBottom() {
         const messageList = this.refs.messageList;
         messageList.scrollTop = messageList.scrollHeight;
     }
 
+    filterMessages() {
+
+        const {conversationType, referenceId, messages, session} = this.props;
+
+        this._messages = messages.data
+            .filter((message) => {
+
+                if (message.referenceType != conversationType)
+                    return false;
+
+                if (conversationType == modelConst.MESSAGE_CHANNEL) {
+                    return (message.referenceId == referenceId);
+                } else if (conversationType == modelConst.MESSAGE_USER) {
+                    const user1 = message.author._id;
+                    const user2 = message.referenceId;
+                    return ((user1 == session.user._id && user2 == referenceId) || (user1 == referenceId && user2 == session.user._id));
+                } else {
+                    return false
+                }
+
+            });
+    }
+
+    markReadedMessages() {
+        const messageIds = this._messages.
+            filter((message)=> {
+                const readed = typeof message.readed != "undefined" ? message.readed : true;
+
+                return readed == false;
+            })
+            .map((message) => {
+                return message.id
+            });
+        if (messageIds.length > 0)
+            this.props.markReadedMessages(messageIds);
+
+    }
+
+
     render() {
 
-        const {conversationType, referenceName, messages} = this.props;
+        this.filterMessages();
 
-        const messageItems = messages.data
-            .filter((message) => {
-                return (message.messageType == conversationType && message.referenceName == referenceName);
-            }).map((message, id) => {
-                return (
-                    <li className="message-item" key={id}>
+        const messageItems = this._messages.map((message, id) => {
+
+            const author = message.author != null ? message.author.name : '';
+            const userColor = Utils.generateUserColor(author);
+            return (
+                <li className="message-item" key={id}>
                         <span className="message-info">
-                            <b className="message-user">{message.user} </b>
-                            <i className="message-time">{message.time}</i>
+                            <b className="message-user" style={{color: userColor}}>{author} </b>
+                            <i className="message-time">{Utils.formatMessageDate(message.created)}</i>
                         </span>
-                        <div className="message-text">{message.text}</div>
-                    </li>
-                );
-            });
+                    <div className="message-text">{message.content}</div>
+                </li>
+            );
+        });
 
         return (
             <ul className="messages-wrapper" ref="messageList">
@@ -59,7 +105,7 @@ class MessageList extends Component {
 
 MessageList.propTypes = {
     conversationType: PropTypes.string.isRequired,
-    referenceName: PropTypes.string.isRequired
+    referenceId: PropTypes.string.isRequired
 };
 
 /**
@@ -67,8 +113,13 @@ MessageList.propTypes = {
  */
 function mapStateToProps(state) {
     return {
-        messages: state.messages
+        messages: state.messages,
+        session: state.session
     };
 }
-
-export default connect(mapStateToProps)(MessageList);
+function mapDispatchToProps(dispatch) {
+    return {
+        markReadedMessages: bindActionCreators(markReadedMessages, dispatch)
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(MessageList);
