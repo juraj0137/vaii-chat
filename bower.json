@@ -6,6 +6,6 @@
   ],
   "dependencies": {
     "bootstrap": "~3.3.6",
-    "startbootstrap-sb-admin-2": "~1.0.8"
+    "startbootstrap-sb-admin-2": "https://github.com/ironsummitmedia/startbootstrap-sb-admin-2/archive/gh-pages.zip"
   }
 }

@@ -3,7 +3,6 @@
 import gulp from 'gulp';
 import babel from 'gulp-babel';
 import nodemon from 'gulp-nodemon';
-//import eslint from 'gulp-eslint';
 import sourcemaps from 'gulp-sourcemaps';
 import source from 'vinyl-source-stream'; //to 'rename' your resulting file
 import buffer from 'vinyl-buffer'; // to transform the browserify results into a 'stream'
